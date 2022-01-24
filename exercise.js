@@ -1,62 +1,36 @@
 const fs = require('fs')
-const csv = require('csv-parser')
-const readline = require('readline')
-console.log("hello!")
+const csv = require('csv-parser');
 
-console.log("begining read atempt!")
-// fs.readFile('input_countries.csv', (err,data) =>{
-//     if(err){
-//         console.log("ERROR BELOW")
-//         console.log(err)
-//         return
-//     }
-//     var WriteStream = fs.createWriteStream("stream_test.txt")
+const results = [];
+var writeStream = fs.createWriteStream('Canada.txt');
+writeStream.write("country, year, population \n ")
 
-//     WriteStream.write(data)
-//     writeStream.on('finish', () => {
-//         console.log('Data write completed')
-//     })
-//     console.log(data.toString())
-// })
+var writeStream2 = fs.createWriteStream('USA.txt');
+writeStream2.write("country, year, population \n ")
 
-async function processLineByLine() {
-    const fileStream = fs.createReadStream('output_test.txt');
-  
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity
-    });
-    // Note: we use the crlfDelay option to recognize all instances of CR LF
-    // ('\r\n') in input.txt as a single line break.
-  
-    for await (const line of rl) {
-      // Each line in input.txt will be successively available here as `line`.
-      
-      if(line.includes('Canada')){
-         // console.log(`Line from file: ${line}`);
-         var input2 = `${line} \n` 
-          fs.appendFile("Canada.txt", input2,(err)=>{
-            if(err){
-                console.log(err)
-                return
-            }
-            console.log(`line written: ${line}`)
-          })
-      }
+fs.createReadStream('input_countries.csv')
+  .pipe(csv())
+  .on('data', (data) => {results.push(data)})
+  .on('end', () => {
+    //console.log(results);
+    //console.log(results[300].country)
+
+    for(var i =0; i < results.length; i++){
+        if(results[i].country == "Canada"){
+            //console.log("worked " + i )
+            //console.log(results[i])
+            var input = `${results[i].country} ${results[i].year} ${results[i].population}`
+            writeStream.write(input + "\n ")
+
+        }
+        if(results[i].country == "United States"){
+            //console.log(results[i])
+            var input = `${results[i].country} ${results[i].year} ${results[i].population}`
+            writeStream2.write(input+ "\n" )
+        }
     }
-  }
-  processLineByLine();
+  });
 
-//   function writing(input){
-//     fs.writeFile("Canada.txt", line,(err)=>{
-//         if(err){
-//             console.log(err)
-//             return
-//         }
-//         console.log(`line written: ${line}`)
-//       })
-
-//   }
 
 
 
